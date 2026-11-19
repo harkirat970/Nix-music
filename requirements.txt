@@ -1,0 +1,16 @@
+# Install with your project Python: python -m pip install -r requirements.txt
+# Versions verified with Nix Music. Update yt-dlp if upstream extraction changes.
+
+# Music discovery, metadata, and lyrics
+ytmusicapi==1.12.4
+
+# Audio extraction; default extras include the matching JavaScript solver
+yt-dlp[default]==2026.10.26
+
+# Optional FFmpeg packaging helper used during local setup
+imageio-ffmpeg==0.8.1
+
+# start.py uses only Python's standard library.
+# Also required outside pip: Node.js 22+, FFmpeg, and cloudflared (for tunnels).
+# Node/MongoDB dependencies are in package.json: install with npm install.
+# FFmpeg must be on PATH or configured using FFMPEG_PATH in .env.

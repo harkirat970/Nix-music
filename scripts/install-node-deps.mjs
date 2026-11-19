@@ -1,0 +1,10 @@
+import {mkdir,writeFile} from 'node:fs/promises';
+import {spawnSync} from 'node:child_process';
+await mkdir('vendor/npm',{recursive:true});
+const meta=await fetch('https://registry.npmjs.org/npm/latest').then(r=>{if(!r.ok)throw Error('npm metadata failed');return r.json();});
+const blob=await fetch(meta.dist.tarball).then(r=>{if(!r.ok)throw Error('npm download failed');return r.arrayBuffer();});
+await writeFile('vendor/npm.tgz',Buffer.from(blob));
+let result=spawnSync('tar',['-xzf','vendor/npm.tgz','-C','vendor/npm'],{stdio:'inherit',windowsHide:true});
+if(result.status)process.exit(result.status);
+result=spawnSync(process.execPath,['vendor/npm/package/bin/npm-cli.js','install','--omit=dev'],{stdio:'inherit',windowsHide:true});
+process.exit(result.status||0);

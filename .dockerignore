@@ -1,0 +1,11 @@
+node_modules
+.env
+.env.launcher.tmp
+.git
+cache
+test
+*.log
+.venv
+vendor
+__pycache__
+cookies

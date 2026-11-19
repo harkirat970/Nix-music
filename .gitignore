@@ -1,0 +1,10 @@
+.env
+.env.*
+!.env.example
+cookies/
+cache/
+.venv/
+node_modules/
+vendor/
+__pycache__/
+*.log
