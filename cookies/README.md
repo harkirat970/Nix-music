@@ -6,7 +6,7 @@ Put your Netscape-format cookie export here as **cookies.txt**:
 cookies/cookies.txt
 ```
 
-Nix Music detects this file before each audio extraction. If it is absent, yt-dlp runs without cookies. Adding or replacing the file does not require restarting the bot. JSON/browser database exports are not supported.
+Before each download, Nix Music looks for `cookies.txt`, then `www.youtube.com_cookies.txt`, then `music.youtube.com_cookies.txt`. A single differently named `.txt` export also works. With several other exports, select one using `YT_DLP_COOKIES_FILE`. An empty folder allows anonymous playback. Replacing the export takes effect on the next download.
 
 You may set `YT_DLP_COOKIES_FILE` in `.env` to use a different file. An explicitly configured missing or invalid file produces an error rather than silently running unauthenticated.
 

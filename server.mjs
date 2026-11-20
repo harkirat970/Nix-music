@@ -49,6 +49,19 @@ async function run(args){
  try{return await runProcess([...cookies.args,...args]);}
  finally{await cookies.cleanup();}
 }
+function extractionFailure(detail){
+ const reasons=[
+  [/ffprobe|ffmpeg.*(?:not found|does not exist)|Postprocessing:/i,503,'The server could not convert this track. Check its FFmpeg installation.'],
+  [/no module named|no such option/i,503,'The server’s audio downloader needs the version in requirements.txt.'],
+  [/sign in|not a bot|cookies.*(?:invalid|expired)|login required/i,502,'The music provider needs a fresh sign-in from the server. Refresh the server cookie export.'],
+  [/private video|unavailable|not available in your country|copyright|removed by/i,422,'This recording is unavailable from the music provider. Choose another version.'],
+  [/requested format|no audio formats|no formats found/i,422,'The provider returned no playable audio for this recording.'],
+  [/403|429|too many requests/i,502,'The music provider declined the server’s download. Try again later.'],
+  [/timed out|failed to resolve|unable to download|connection refused/i,503,'The server could not reach the music provider. Try again shortly.']
+ ];
+ const reason=reasons.find(([pattern])=>pattern.test(detail));
+ return reason?fail(reason[2],reason[1]):fail('The music provider could not deliver this recording. Try again or choose another version.',502);
+}
 function runProcess(args){return new Promise((ok,no)=>{
   if(busy>=3) return no(fail('Music server is busy. Try again shortly.',429)); busy++;
   const executable=process.env.YT_DLP_PATH || python;
@@ -57,7 +70,7 @@ function runProcess(args){return new Promise((ok,no)=>{
   const finish=(error)=>{if(finished)return;finished=true;clearTimeout(timer);busy--;error?no(error):ok(out);};
   const timer=setTimeout(()=>{p.kill();finish(fail('Music request timed out.',504));},120000);
   p.stdout.on('data',b=>{out+=b;if(out.length>4e6){p.kill();finish(fail('Result too large'));}}); p.stderr.on('data',b=>{err=(err+b).slice(-2000);});
-  p.on('error',()=>finish(fail('yt-dlp is unavailable. Install it on the server.',503)));p.on('close',code=>finish(code ? fail('Audio source unavailable. Try another track.',502) : null));
+  p.on('error',()=>finish(fail('The audio downloader is missing on the server.',503)));p.on('close',code=>finish(code===0?null:extractionFailure(err)));
 });}
 function clean(t){return {id:t.id,title:String(t.title||'Untitled').slice(0,200),artist:String(t.uploader||t.channel||'YouTube').slice(0,100),duration:Number(t.duration)||0,art:'orbit',thumbnail:`https://i.ytimg.com/vi/${t.id}/hqdefault.jpg`};}
 function remember(data){for(const t of data.tracks||[])tracks.set(t.id,t);return data;}
@@ -65,12 +78,15 @@ async function search(q){if(!liveMusic)return catalog.filter(t=>`${t.title} ${t.
  return remember(await music('search',q)).tracks;}
 async function audio(id){
  if(!/^[\w-]{11}$/.test(id))throw fail('Invalid video');const path=join(cache,`${id}.mp3`);
- try{await stat(path);return path;}catch{}
+ if(jobs.has(id))return jobs.get(id);
+ try{if((await stat(path)).size>0&&!jobs.has(id))return path;}catch(error){if(error.code!=='ENOENT')throw error;}
  if(!jobs.has(id)){const job=(async()=>{
   const staging=await mkdtemp(join(tmpdir(),'nix-audio-'));
   try{
-   await run(['--no-playlist','--max-filesize','35M','--match-filters','duration < 900 & !is_live','-f','bestaudio','-x','--audio-format','mp3','--audio-quality','5','--write-info-json','-o',join(staging,`${id}.%(ext)s`),'--',`https://www.youtube.com/watch?v=${id}`]);
-   await stat(join(staging,`${id}.mp3`));await mediaCache.install(staging);return path;
+   await run(['--no-playlist','--max-filesize','35M','--match-filters','duration < 900 & !is_live','-f','bestaudio/best[acodec!=none]','-x','--audio-format','mp3','--audio-quality','5','--write-info-json','-o',join(staging,`${id}.%(ext)s`),'--',`https://www.youtube.com/watch?v=${id}`]);
+   const output=await stat(join(staging,`${id}.mp3`)).catch(error=>{if(error.code!=='ENOENT')throw error;});
+   if(!output?.size)throw fail('This recording could not be downloaded within the track limits (under 15 minutes and up to 35 MB).',422);
+   await mediaCache.install(staging);return path;
   }finally{await rm(staging,{recursive:true,force:true});}
  })().finally(()=>jobs.delete(id));jobs.set(id,job);}return jobs.get(id);
 }

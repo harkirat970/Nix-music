@@ -5,7 +5,7 @@ user:
   github: "harkirat970"
 
 runtime:
-  image: "python:3.11-slim" "node:26"
+  image: "python:3.11-slim"
 commands:
   build:
     # 1. System packages: FFmpeg, curl, certificates, gnupg

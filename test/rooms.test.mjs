@@ -92,6 +92,17 @@ test('concurrent requests keep queue order and recover after extraction failure'
  await assert.rejects(f.manager.enqueue(r,f.user,{id:'bad'}),/Unavailable/);
  await f.manager.enqueue(r,f.user,{id:'third'});assert.deepEqual(r.queue.map(t=>t.id),['second','third']);
 });
+test('play next promotes one shared entry without interrupting playback',async()=>{
+ const f=fixture(),r=await f.manager.group(f.user,f.chat);
+ for(const id of ['now','one','two','three'])await f.manager.enqueue(r,f.user,{id});
+ const revision=r.revision;
+ await f.manager.control(r,f.user,{playNextIndex:2,revision});
+ assert.equal(r.track.id,'now');
+ assert.deepEqual(r.queue.map(t=>t.id),['three','one','two']);
+ await assert.rejects(f.manager.control(r,f.user,{playNextIndex:1,revision}),/queue changed/);
+ await f.manager.settings(r,f.admin,true);
+ await assert.rejects(f.manager.control(r,f.user,{playNextIndex:1,revision:r.revision}),/Only group admins/);
+});
 test('commands queue songs into the same group room and deny non-admin settings',async()=>{
  const f=fixture(),sent=[];const invoke=(name,args='',user=f.user)=>handleGroupCommand({message:{chat:f.chat,from:user},command:{name,args},manager:f.manager,search:async()=>[{id:args,title:args}],send:async(text,markup)=>sent.push({text,markup}),username:'nixmusicbot'});
  await invoke('play','First');await invoke('play','Second');const r=await f.manager.group(f.user,f.chat);assert.equal(r.track.id,'First');assert.equal(r.queue[0].id,'Second');

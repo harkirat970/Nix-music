@@ -28,3 +28,23 @@ test('each extraction uses a separate disposable cookie copy',async()=>{
   await writeFile(original,'{}');await assert.rejects(prepareCookies('',root),/Netscape/);
  }finally{await a?.cleanup();await b?.cleanup();await rm(root,{recursive:true,force:true});}
 });
+
+test('detects browser export names and honors an explicit override',async()=>{
+ const root=await mkdtemp(join(tmpdir(),'nix-cookie-test-')),directory=join(root,'cookies');
+ const content=name=>'# Netscape HTTP Cookie File\n# '+name+'\n';
+ async function selected(configured=''){
+  const copy=await prepareCookies(configured,root);
+  try{return await readFile(copy.args[1],'utf8');}finally{await copy.cleanup();}
+ }
+ try{
+  await mkdir(directory);
+  await writeFile(join(directory,'xookies.txt'),content('custom'));
+  assert.equal(await selected(),content('custom'));
+  await writeFile(join(directory,'music.youtube.com_cookies.txt'),content('music'));
+  await writeFile(join(directory,'www.youtube.com_cookies.txt'),content('www'));
+  assert.equal(await selected(),content('www'));
+  assert.equal(await selected('cookies/xookies.txt'),content('custom'));
+  await writeFile(join(directory,'cookies.txt'),content('canonical'));
+  assert.equal(await selected(),content('canonical'));
+ }finally{await rm(root,{recursive:true,force:true});}
+});
