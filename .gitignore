@@ -7,5 +7,3 @@ node_modules/
 vendor/
 __pycache__/
 *.log
-cookies/*
-!cookies/README.md
