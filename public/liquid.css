@@ -1,0 +1,45 @@
+/* Frosted controls pick up the artwork underneath as the page scrolls. */
+:root { --frost: linear-gradient(135deg, #ffffff24, #c5badd0c 45%, #d1eaff18), #141318bc; }
+#mini-player, #mobile-nav, #overlay .queue-panel, .glass.room-card {
+  background: var(--frost) !important;
+  backdrop-filter: blur(18px) saturate(155%);
+  -webkit-backdrop-filter: blur(18px) saturate(155%);
+  border: 1px solid #ffffff32;
+  box-shadow: inset 0 1px #ffffff3b, inset 0 -1px #ffffff0b, 0 8px 32px #0005;
+}
+.picks-carousel { display:grid; grid-auto-flow:column; grid-auto-columns:min(76%,285px); gap:16px; overflow-x:auto; scroll-snap-type:x mandatory; padding:2px 1px 12px; scrollbar-width:thin; scrollbar-color:#ffffff35 transparent; }
+.pick-card { position:relative; display:block; scroll-snap-align:start; padding:0; border-radius:17px; overflow:hidden; text-align:left; border:1px solid #ffffff29; color:white; background:#161419; }
+.pick-art { display:block; aspect-ratio:1; width:100%; }
+.pick-caption { display:grid; gap:4px; position:relative; min-height:78px; padding:15px 54px 15px 16px; background:linear-gradient(115deg,#ffffff10,transparent); }
+.pick-caption strong,.pick-caption small { white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.pick-caption strong { font-size:18px; }.pick-caption small,.picks-heading p { color:#c1b9c9; font-size:12px; }
+.pick-label { position:absolute; z-index:3; top:12px; left:12px; color:white; background:#15121bc9; border:1px solid #ffffff38; border-radius:22px; padding:5px 9px; font-size:9px; }
+.pick-play { position:absolute; right:13px; top:20px; display:grid; place-items:center; width:34px; height:34px; border-radius:50%; background:#fff2; }
+.pick-play svg,.picks-swipe svg { width:15px; }.picks-swipe { display:flex; align-items:center; gap:6px; color:#bcb2c7; font-size:11px; }
+#overlay:has(.full-player) { isolation:isolate; }
+.player-atmosphere { position:fixed; inset:0; z-index:-1; pointer-events:none; overflow:hidden; background:#324047; }
+.atmosphere-art { position:absolute; inset:-8%; filter:blur(45px) saturate(.85); opacity:.78; }
+.player-atmosphere:after { content:''; position:absolute; inset:0; background:linear-gradient(#24232942,#11161b8c 52%,#10151bdd); }
+.full-player { position:relative; max-width:440px; padding:8px 16px 24px; color:white; }
+.sheet-handle { width:34px; height:4px; margin:0 auto 10px; border-radius:5px; background:#ffffff63; }
+.full-player .full-header { margin-bottom:14px; }
+.full-player .full-art { width:min(100%,46dvh); border-radius:12px; box-shadow:0 14px 38px #0005; }
+.listener-chip,.full-bottom .listening-pill,.full-player .icon-button { background:#ffffff19; border:1px solid #ffffff33; box-shadow:inset 0 1px #ffffff21; }
+.listener-chip { width:fit-content; max-width:100%; display:flex; align-items:center; gap:7px; margin:22px 0 0; padding:4px 9px 4px 4px; border-radius:20px; font-size:11px; }
+.listener-chip .chip-avatar { position:relative; overflow:hidden; width:19px; height:19px; flex:none; border-radius:50%; background:#685774; }
+.full-player .rail-song { margin-top:9px; }.full-player .rail-song p { color:#e1dce6; }
+.full-player .play-status:empty { display:none; }
+.full-player .full-transport .transport { background:transparent; padding:10px 0; }
+.full-transport .transport button { color:#fffd; min-height:44px; }.full-transport .transport .play-button { background:transparent; color:white; box-shadow:none; }
+.full-player .full-transport .play-button svg { width:32px; height:32px; fill:currentColor; }
+.full-volume { display:flex; align-items:center; gap:12px; margin:14px 0; color:#fffb; }
+.full-volume svg { width:17px; }.full-volume svg:first-child { width:12px; }
+.full-volume input { flex:1; min-width:0; height:4px; accent-color:#eee; }
+.full-player .full-bottom { align-items:center; }.full-bottom .listening-pill { border-radius:30px; padding-inline:14px; }
+.sample-caption { text-align:center; font-size:10px; color:#ffffff99; margin:12px 0; }
+@media(prefers-reduced-motion:no-preference) {
+  .full-player:not(.is-open),.queue-panel { animation:glass-sheet-in 420ms cubic-bezier(.18,.85,.22,1) both; }
+  .pick-card { transition:transform 200ms ease-out; }.pick-card:active { transform:scale(.975); }
+  @keyframes glass-sheet-in { from { opacity:0; transform:translateY(34px) scale(.975); } to { opacity:1; transform:none; } }
+}
+@media(max-height:680px) { .full-player .full-art { width:min(100%,32dvh); }.listener-chip { margin-top:10px; } }
