@@ -71,6 +71,17 @@ test('permission is checked again after track preparation',async()=>{
  await assert.rejects(f.manager.enqueue(r,f.user,{id:'song'}),/restricted/);assert.equal(r.track,null);
 });
 
+test('queue removal respects permissions and rejects stale indices',async()=>{
+ const f=fixture(),r=await f.manager.group(f.user,f.chat);
+ for(const id of ['now','next','last'])await f.manager.enqueue(r,f.user,{id});
+ const revision=r.revision;await f.manager.control(r,f.user,{removeIndex:0,revision});
+ assert.equal(r.track.id,'now');assert.deepEqual(r.queue.map(t=>t.id),['last']);
+ await assert.rejects(f.manager.control(r,f.user,{removeIndex:0,revision}),/queue changed/);
+ await f.manager.settings(r,f.admin,true);
+ await assert.rejects(f.manager.control(r,f.user,{removeIndex:0,revision:r.revision}),/Only group admins/);
+ await f.manager.control(r,f.admin,{removeIndex:0,revision:r.revision});assert.equal(r.queue.length,0);
+});
+
 test('concurrent requests keep queue order and recover after extraction failure',async()=>{
  const f=fixture(),r=await f.manager.group(f.user,f.chat);let release;
  const gate=new Promise(resolve=>release=resolve),started=[];

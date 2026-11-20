@@ -75,6 +75,11 @@ export class RoomManager{
  async control(room,user,change){
   if(!(await this.access(room,user)).canControl)throw denied(room.group?'Only group admins can control music.':'Only the host can control playback.');
   if(change.id)throw Object.assign(Error('Add tracks to the room queue instead of replacing playback.'),{status:400});
+  if(Object.hasOwn(change,'removeIndex')){
+   if(change.revision!==room.revision)throw Object.assign(Error('The queue changed. Please try again.'),{status:409});
+   if(!Number.isInteger(change.removeIndex)||change.removeIndex<0||change.removeIndex>=room.queue.length)throw Object.assign(Error('Track is no longer in the queue.'),{status:400});
+   room.queue.splice(change.removeIndex,1);room.revision++;room.lastActive=this.now();return;
+  }
   if(change.next)this.advance(room);else applyControl(room,change,this.now());
   room.lastActive=this.now();
  }

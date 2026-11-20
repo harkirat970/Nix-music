@@ -18,3 +18,38 @@ button,a{transition:transform .35s var(--spring),background .35s ease,box-shadow
 .profile-community{display:grid;gap:12px}.community-link{display:flex;align-items:center;gap:14px;border-radius:17px;padding:18px;color:#e5d5fa}.community-link>span{flex:1;font-size:13px;font-weight:600}.community-link small{display:block;font-size:10px;font-weight:400;color:#a99bb9;margin-top:5px}.community-link>svg{flex-shrink:0;width:19px}.community-link:hover{background:#c8a6ef20;transform:translateY(-2px)}
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
 .room-card .room-presence{font-size:12px;color:#cdb7e9;margin:16px 0 10px}.room-card .chip{display:inline-flex;align-items:center;gap:8px;margin:10px 8px 0 0;min-height:42px}.room-permission svg{width:16px;height:16px}.room-permission strong{padding:3px 9px;border-radius:20px;background:#ffffff14;font-size:11px}.room-permission[aria-checked="true"] strong{background:#b486ed38;color:#e9d2ff}.room-card button:focus-visible{outline:2px solid #d4adff;outline-offset:4px}.room-card .settings-row{overflow-wrap:anywhere}
+/* Black surfaces with short, compositor-friendly transitions. */
+:root{color-scheme:dark;--bg:#000;--muted:#aaa;--line:#ffffff16}
+html,body,.workspace,.sidebar,#right-rail,#overlay{background:#000!important}
+.ambient,.profile-aura,.tiny-orb{display:none}
+#overlay{backdrop-filter:none;-webkit-backdrop-filter:none}
+.glass,.modal,.player,#mobile-nav{background:#0b0b0b!important;backdrop-filter:none;-webkit-backdrop-filter:none;border-color:#ffffff20;box-shadow:inset 0 1px #ffffff0a}
+.profile-hero,.account-card,.room-card,.room-promo,.insight{background:#080808!important}
+.profile-hero .profile-avatar,.music-playing .player .cover{box-shadow:none}
+.music-playing .player-track:after{animation:none}
+.page-enter,.page-enter>.profile-hero,.page-enter>.profile-stats{animation:none}
+button,a,.music-card,.music-card .tile,#mobile-nav button{transition:transform 180ms ease-out,background-color 180ms ease-out,color 180ms ease-out}
+button:active{transform:scale(.97)}
+.full-player,.modal{animation:glass-arrive 220ms ease-out both}
+.full-player.is-open{animation:none}
+button:focus-visible,a:focus-visible,input:focus-visible{outline:2px solid #d6b7ff!important;outline-offset:4px}
+button:disabled{opacity:.45;cursor:not-allowed}
+.queue-panel{max-width:540px;margin:auto;padding:24px;animation:glass-arrive 200ms ease-out both}
+.queue-heading{display:flex;justify-content:space-between;align-items:center;gap:16px}
+.queue-heading h2{margin:7px 0 0}.queue-heading .eyebrow{font-size:9px}
+.queue-caption{margin:14px 0 24px!important;overflow-wrap:anywhere}
+.queue-panel h3{display:flex;gap:10px;align-items:center;font-size:13px;margin:20px 0 12px}
+.queue-panel h3>span{color:#aaa;font-size:11px}
+.queue-list{max-height:52dvh;overflow:auto;overscroll-behavior:contain;scrollbar-width:thin}
+.queue-item{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid #ffffff12;min-width:0}
+.queue-current{padding:12px;background:#ffffff05;border:1px solid #ffffff14;border-radius:14px}
+.queue-item .cover{width:44px;height:44px;flex-shrink:0}
+.queue-item .song-meta{min-width:0;flex:1}
+.queue-item .song-meta strong,.queue-item .song-meta small{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.queue-item .song-meta strong{font-size:13px}.queue-item .song-meta small{font-size:11px;color:#aaa;margin-top:5px}
+.queue-item .icon-button,.queue-heading .icon-button{min-width:44px;min-height:44px;flex-shrink:0}
+.queue-number{width:20px;flex-shrink:0;color:#888;font-size:11px}
+.queue-badge{font-size:10px;color:#d6b7ff;flex-shrink:0}
+@media(max-width:580px){.queue-panel{padding:18px 14px;border-radius:20px}.queue-item{gap:8px}.queue-list{max-height:50dvh}.queue-number{width:14px}}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
+body:has(#overlay:not([hidden])){overflow:hidden}

@@ -1,5 +1,7 @@
 # Nix Music — Telegram music, together
 
+Fresh installation: see [SETUP.md](SETUP.md) for Python 3.11+, Node.js, FFmpeg, cloudflared, MongoDB, and Windows/Linux setup. Python package pins and system requirement notes are in [requirements.txt](requirements.txt).
+
 ## Optional yt-dlp cookies
 
 Place a Netscape-format export at `cookies/cookies.txt`. The bot checks for it on each extraction; no restart is needed when adding or replacing the file. Override the path with `YT_DLP_COOKIES_FILE` in `.env` if needed. Cookie exports are excluded from Git and Docker images. See [cookies/README.md](cookies/README.md) for details.
@@ -117,3 +119,9 @@ Rooms are scoped to Telegram groups: each group has its own playback and queue. 
 New group invitations use `?start=room_ID`. They open the bot in private chat (press Start if prompted), where membership is verified and an **Open group room** Mini App button is sent with the currently running tunnel URL. Opening that button joins the group room automatically. This flow does not use BotFather’s Main Mini App URL; the profile’s separate Open App button still uses that setting. After a tunnel restart, reopen the group invitation to obtain a fresh button. Old `startapp` invitations must be replaced by sending `/room` again.
 
 The retained audio cache is capped at 100 MB (100,000,000 bytes), including metadata. Oldest files are evicted before new tracks enter the cache, on startup, and during the minute-by-minute cleanup. Downloads and conversion use temporary staging outside the cache, removed after each operation; transient working disk usage can exceed 100 MB while extracting music.
+
+## Black theme and queue behavior
+
+The app uses a pure-black background, dark bordered controls, short transitions, and reduced-motion support. Continuous decorative glow/equalizer animations and backdrop blur are disabled. Room heartbeats update playback timing without rebuilding unchanged player and queue elements.
+
+The queue panel separates the current song from upcoming songs. Personal playback follows a queue built from the selected list, supports removing upcoming songs, and stops when the queue finishes. Shuffle changes the upcoming order. Group queues remain shared; removing a queued track follows the group's control permissions and rejects stale edits. Queue panels support Escape, keyboard focus containment, and returning to the full player.

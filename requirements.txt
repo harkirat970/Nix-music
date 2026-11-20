@@ -1,16 +1,63 @@
-# Install with your project Python: python -m pip install -r requirements.txt
-# Versions verified with Nix Music. Update yt-dlp if upstream extraction changes.
+# Nix Music - Python dependencies and system requirements
+# =====================================================
+# Python: 3.11 or newer (required by the pinned yt-dlp release).
+# Locally verified: Python 3.14.5. Linux runtime testing is still pending.
+# Python itself cannot be installed or version-pinned by requirements.txt.
+#
+# Install into a fresh virtual environment:
+#   python -m pip install --upgrade pip
+#   python -m pip install -r requirements.txt
+#   python -m pip check
+# Do not copy a Windows virtual environment to Linux (or vice versa).
 
-# Music discovery, metadata, and lyrics
+# Music search, home recommendations, charts, metadata, and lyrics.
 ytmusicapi==1.12.4
 
-# Audio extraction; default extras include the matching JavaScript solver
+# Audio extraction. Default extras include yt-dlp's JavaScript solver.
+# Node.js is also required below for JavaScript execution.
 yt-dlp[default]==2026.10.26
 
-# Optional FFmpeg packaging helper used during local setup
+# FFmpeg packaging helper retained for the project's local setup tools.
+# This package alone does NOT put ffmpeg/ffprobe on PATH for the bot.
 imageio-ffmpeg==0.8.1
 
-# start.py uses only Python's standard library.
-# Also required outside pip: Node.js 22+, FFmpeg, and cloudflared (for tunnels).
-# Node/MongoDB dependencies are in package.json: install with npm install.
-# FFmpeg must be on PATH or configured using FFMPEG_PATH in .env.
+# NON-PYTHON REQUIREMENTS - install separately
+# ------------------------------------------
+# Node.js 22+ with npm: runs the server, Telegram bot, and yt-dlp JS runtime.
+#   npm ci
+# Installs the MongoDB Node driver from package-lock.json.
+# Do NOT install pymongo, python-telegram-bot, or aiogram for this project:
+# the Telegram and MongoDB implementation is in Node.js.
+#
+# FFmpeg and ffprobe: install the FFmpeg distribution for your OS.
+# Put both on PATH, or set FFMPEG_PATH to the FFmpeg binary/directory.
+# Windows local fallback: vendor/ffmpeg.exe.
+#
+# cloudflared: required only for the temporary tunnel created by start.py.
+# Put it on PATH, or use vendor/cloudflared (Linux) /
+# vendor/cloudflared.exe (Windows). The Linux binary must be executable.
+# With an existing HTTPS reverse proxy/domain, use --no-tunnel instead.
+#
+# MongoDB: reachable Atlas cluster or separately running MongoDB server.
+# The launcher does not install/start MongoDB. Docker Compose can do so.
+#
+# CONFIGURATION
+# -------------
+# Copy .env.example to .env; set DEMO_MODE=false for the real Telegram bot.
+# Required: TELEGRAM_BOT_TOKEN, OWNER_ID, MONGODB_URI.
+# Set MONGODB_DATABASE if needed. PUBLIC_URL is written by the temporary
+# tunnel launcher; with --no-tunnel, configure your own HTTPS PUBLIC_URL.
+# Keep PYTHON_PATH, FFMPEG_PATH, and YT_DLP_PATH empty for auto-detection,
+# or set valid paths for the target OS. Do not reuse Windows paths on Linux.
+# Optional cookies: cookies/cookies.txt in Netscape format, or set
+# YT_DLP_COOKIES_FILE. Credentials and cookie exports must stay out of Git.
+#
+# START / VERIFY
+# --------------
+#   python start.py --check
+#   python start.py
+# Permanent HTTPS deployment:
+#   python start.py --no-tunnel
+# Use python3 on Linux if python is not available.
+# Keep the launcher running; Ctrl+C stops its server and tunnel.
+# See SETUP.md for copyable Windows and Linux setup steps.

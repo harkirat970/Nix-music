@@ -107,6 +107,8 @@ def main(argv=None):
     args = parser.parse_args(argv)
     children = []
     try:
+        if sys.version_info < (3, 11):
+            raise RuntimeError('Python 3.11 or newer is required by the pinned music dependencies.')
         settings = read_env(ROOT / '.env')
         env = {**os.environ, **settings}
         if args.demo:
@@ -132,9 +134,9 @@ def main(argv=None):
             python = env.get('PYTHON_PATH') or next((str(ROOT / p) for p in (
                 '.venv/Scripts/python.exe', '.venv/bin/python.exe', '.venv/bin/python'
             ) if (ROOT / p).exists()), shutil.which('python3') or sys.executable)
-            check = subprocess.run([python, '-c', 'import ytmusicapi, yt_dlp'], capture_output=True)
+            check = subprocess.run([python, '-c', 'import sys; assert sys.version_info >= (3, 11); import ytmusicapi, yt_dlp'], capture_output=True)
             if check.returncode:
-                raise RuntimeError('Music dependencies are missing. Install requirements.txt using your project Python.')
+                raise RuntimeError('The music interpreter needs Python 3.11+ and requirements.txt. Check PYTHON_PATH and reinstall dependencies in that environment.')
             env['PYTHON_PATH'] = python
             if not (env.get('FFMPEG_PATH') or (ROOT / 'vendor/ffmpeg.exe').exists() or shutil.which('ffmpeg')):
                 raise RuntimeError('FFmpeg is missing. Install it or set FFMPEG_PATH in .env.')
